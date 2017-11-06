@@ -2,6 +2,7 @@
 
 namespace CatchOfTheDay\DevExamBundle\Controller;
 
+use CatchOfTheDay\DevExamBundle\Model\TodoListItem;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -37,8 +38,12 @@ class DefaultController extends Controller
     {
         $manager = $this->get('catch_of_the_day_dev_exam.manager.todo_list');
         $items = $manager->read();
-        
-        // TODO - Read the new item's text from $request, add a new TodoListItem to the collection and save.
+
+        $text = $request->request->get('todo-text');
+        $newItem = new TodoListItem();
+        $newItem->setText($text);
+        array_push($items, $newItem);
+        $manager->write($items);
 
         return $this->redirectToRoute('index');
     }

@@ -2,6 +2,8 @@
 
 namespace CatchOfTheDay\DevExamBundle\Manager;
 
+use CatchOfTheDay\DevExamBundle\Model\TodoListItem;
+
 class TodoListManager
 {
     const DATA_FILE = '@CatchOfTheDayDevExamBundle/Resources/data/todo-list.json';
@@ -33,8 +35,15 @@ class TodoListManager
     public function read()
     {
         $jsonFile = $this->getDataFilePath();
+        $jsonContents = file_get_contents($jsonFile);
+        $allData = json_decode($jsonContents, true);
+        $items = [];
 
-        // TODO - Parse JSON and translate to array of TodoListItem. Hint: TodoListItem::fromAssocArray()
+        foreach ($allData as $data) {
+            array_push($items, TodoListItem::fromAssocArray($data));
+        }
+
+        return $items;
     }
 
     /**
@@ -42,8 +51,14 @@ class TodoListManager
      */
     public function write(array $items)
     {
-        $jsonFile = $this->getDataFilePath();
+        $allData = [];
 
-        // TODO - Serialise $items to JSON and write to $jsonFile. Hint: TodoListItem::toAssocArray()
+        foreach ($items as $item) {
+            array_push($allData, $item->toAssocArray());
+        }
+
+        $jsonContents = json_encode($allData);
+        $jsonFile = $this->getDataFilePath();
+        file_put_contents($jsonFile, $jsonContents);
     }
 }
