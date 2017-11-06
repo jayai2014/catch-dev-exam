@@ -26,8 +26,8 @@ class TodoListItem
 
     public function __construct()
     {
-        // TODO - Generate an identifier for this TodoListItem
-
+        // A basic version random unique id
+        $this->setId(uniqid('', true));
         $this->created = new \DateTime();
         $this->complete = false;
     }
@@ -116,7 +116,10 @@ class TodoListItem
     {
         $item = new TodoListItem();
 
-        // TODO
+        $item->setId($data['id']);
+        $item->setText($data['text']);
+        $item->setComplete($data['complete']);
+        $item->setCreated($data['created']);
 
         return $item;
     }
@@ -128,7 +131,10 @@ class TodoListItem
     {
         $data = [];
 
-        // TODO
+        $data['id'] = $this->getId();
+        $data['text'] = $this->getText();
+        $data['complete'] = $this->getComplete();
+        $data['created'] = $this->getCreated();
 
         return $data;
     }
