@@ -48,15 +48,28 @@
                 <div class="well">
                     <form class="form-horizontal" action="{{ path('add') }}" method="post" id="form-new-item">
                         <h5>Add New Item</h5>
+                        <div id="form-msg-success" class="alert alert-success alert-dismissible form-response" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <span class="text"></span>
+                        </div>
+                        <div id="form-msg-error" class="alert alert-danger alert-dismissible form-response" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <span class="text"></span>
+                        </div>
                         <div class="form-group" id="div-todo-text">
                             <div class="col-md-12">
-                                <span class="warn-block">Text should not be empty :)</span>
+                                <span class="help-block" id="label-text-warning">Text should not be empty :)</span>
+                                <span class="help-block" id="label-text-submitting">Submitting ...</span>
                                 <input type="text" class="form-control" id="todo-text-input" name="todo-text" placeholder="Text">
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="col-md-12">
-                                <button type="submit" class="btn btn-primary">
+                                <button id="button-submit" type="submit" class="btn btn-primary">
                                     Add
                                 </button>
                             </div>
@@ -68,39 +81,45 @@
 
         <div class="row">
             <div class="col-md-12">
-                <table class="table table-striped table-hover">
-                    <colgroup>
-                        <col style="width: 120px" />
-                        <col style="width: 200px" />
-                        <col />
-                        <col style="width: 135px" />
-                    </colgroup>
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Created Timestamp</th>
-                        <th>Text</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for item in items if not item.complete %}
-                        <tr>
-                            <td>{{ item.id }}</td>
-                            <td>{{ item.created|date('d/m/Y g:i a') }}</td>
-                            <td>{{ item.text }}</td>
-                            <td>
-                                <a href="{{ path('mark_as_complete', { 'itemId': item.id }) }}" class="btn btn-sm btn-success">
-                                    Mark as Complete
-                                </a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+                <h4>Your TODO List</h4>
             </div>
         </div>
-    </div>
+
+        <div class="row" id="items-container">
+            <div class="col-md-12">
+                <div class="alert alert-danger alert-dismissible" id="mark-error">
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <span class="text"></span>
+                </div>
+            </div>
+            {% set incomplete = 0 %}
+            {% for item in items if not item.complete %}
+                {% set incomplete = incomplete + 1 %}
+                <div class="col-md-4">
+                    <div class="thumbnail">
+                        <div class="caption">
+                            <h4>{{ item.created|date('d/m/Y g:i a') }}</h4>
+                            <p>{{ item.text }}</p>
+                            <p>
+                                <a href="{{ path('mark_as_complete', { 'itemId': item.id }) }}"
+                                   class="btn btn-success btn-xs btn-mark-complete"
+                                   id="{{ item.id }}"
+                                   role="button">
+                                    Mark as Complete
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            {% if incomplete == 0 %}
+                <div class="col-md-12">
+                    You have completed all todo items.
+                </div>
+            {% endif %}
+        </div>
 {% endblock body %}
 
 {% block javascripts %}

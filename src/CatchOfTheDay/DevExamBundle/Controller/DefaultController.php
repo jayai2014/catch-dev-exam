@@ -7,6 +7,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 
 class DefaultController extends Controller
@@ -32,20 +33,29 @@ class DefaultController extends Controller
      * @Method("POST")
      *
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return JsonResponse
      */
     public function addAction(Request $request)
     {
         $manager = $this->get('catch_of_the_day_dev_exam.manager.todo_list');
-        $items = $manager->read();
 
         $text = $request->request->get('todo-text');
-        $newItem = new TodoListItem();
-        $newItem->setText($text);
-        array_push($items, $newItem);
-        $manager->write($items);
 
-        return $this->redirectToRoute('index');
+        if ($text == null || $text == '') {
+            $result['success'] = false;
+            $result['message'] = "New item cannot have empty text.";
+        } else {
+            $newItem = new TodoListItem();
+            $newItem->setText($text);
+
+            $manager->addNewItem($newItem);
+
+            $result['success'] = true;
+            $result['id'] = $newItem->getId();
+            $result['message'] = "New item has been successfully added.";
+        }
+
+        return new JsonResponse($result);
     }
 
     /**
@@ -53,15 +63,25 @@ class DefaultController extends Controller
      *
      * @param Request $request
      * @param string $itemId
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @return JsonResponse
      */
     public function markAsCompleteAction(Request $request, $itemId)
     {
         $manager = $this->get('catch_of_the_day_dev_exam.manager.todo_list');
-        $items = $manager->read();
+        $item = $manager->findItemById($itemId);
+        $result = [];
 
-        // TODO - Look in $items for the item that matches $itemId, update it and save the collection.
+        if ($item == null) {
+            $result['success'] = false;
+            $result['message'] = "Item not found.";
+        } else {
+            $item->setComplete(true);
+            $manager->updateItem($item);
 
-        return $this->redirectToRoute('index');
+            $result['success'] = true;
+            $result['message'] = "The item has been marked as completed!";
+        }
+
+        return new JsonResponse($result);
     }
 }
